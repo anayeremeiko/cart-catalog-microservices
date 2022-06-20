@@ -1,5 +1,6 @@
 ﻿using Catalog.Core.Commands;
 using Catalog.Core.Entities;
+using Catalog.Core.Interfaces;
 using Catalog.SharedKernel.Interfaces;
 using MediatR;
 
@@ -8,12 +9,12 @@ namespace Catalog.Core.Handlers
 	public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryCommand, Unit>
 	{
 		private readonly IRepository<Category> categoryRepository;
-		private readonly IRepository<Item> itemRepository;
+		private readonly IItemService itemService;
 
-		public DeleteCategoryCommandHandler(IRepository<Category> categoryRepository, IRepository<Item> itemRepository)
+		public DeleteCategoryCommandHandler(IRepository<Category> categoryRepository, IItemService service)
 		{
 			this.categoryRepository = categoryRepository;
-			this.itemRepository = itemRepository;
+			this.itemService = service;
 		}
 
 		public async Task<Unit> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
@@ -23,7 +24,7 @@ namespace Catalog.Core.Handlers
 			{
 				foreach (var item in request.Category.Items)
 				{
-					await itemRepository.DeleteAsync(item);
+					await itemService.DeleteItemAsync(item);
 				}
 			}
 

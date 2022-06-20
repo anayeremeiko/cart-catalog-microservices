@@ -18,5 +18,12 @@ namespace Catalog.Infrastructure.Data
 
 			return entity;
 		}
+
+		public async Task<IEnumerable<T>> GetAllAsync()
+		{
+			var entities = await appDbContext.Set<T>().ToListAsync();
+
+			return entities;
+		}
 	}
 }
