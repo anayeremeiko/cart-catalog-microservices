@@ -1,5 +1,6 @@
 ﻿using Catalog.Core.Commands;
 using Catalog.Core.Entities;
+using Catalog.Core.Interfaces;
 using Catalog.SharedKernel.Interfaces;
 using MediatR;
 
@@ -8,12 +9,12 @@ namespace Catalog.Core.Handlers
 	public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommand, Category>
 	{
 		private readonly IRepository<Category> categoryRepository;
-		private readonly IRepository<Item> itemRepository;
+		private readonly IItemService itemService;
 
-		public CreateCategoryCommandHandler(IRepository<Category> categoryRepository, IRepository<Item> itemRepository)
+		public CreateCategoryCommandHandler(IRepository<Category> categoryRepository, IItemService service)
 		{
 			this.categoryRepository = categoryRepository;
-			this.itemRepository = itemRepository;
+			this.itemService = service;
 		}
 
 		public async Task<Category> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
@@ -23,7 +24,7 @@ namespace Catalog.Core.Handlers
 			{
 				foreach(var item in request.NewCategory.Items)
 				{
-					await itemRepository.AddAsync(item);
+					await itemService.AddItemAsync(item);
 				}
 			}
 

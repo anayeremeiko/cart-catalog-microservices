@@ -70,19 +70,15 @@ namespace Catalog.Core.Services
 		}
 
 		/// <summary>
-		/// Lists category items.
+		/// Lists categories.
 		/// </summary>
-		/// <param name="caterogyId">The category identifier.</param>
-		/// <returns>Items that belong to the category with the provided identifier.</returns>
-		public async Task<IEnumerable<Item>> ListCaterogyAsync(int caterogyId)
+		/// <returns>All categories.</returns>
+		public async Task<IEnumerable<Category>> ListCaterogiesAsync()
 		{
-			GetCategoryQuery request = new GetCategoryQuery()
-			{
-				Id = caterogyId
-			};
-			var category = await mediator.Send(request);
+			GetCategoriesQuery request = new GetCategoriesQuery();
+			var categories = await mediator.Send(request);
 
-			return category.Items;
+			return categories;
 		}
 
 		/// <summary>
