@@ -1,4 +1,6 @@
-﻿namespace eShopServices.Services.Cart.Cart.API.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace eShopServices.Services.Cart.Cart.API.Models
 {
 	/// <summary>
 	/// The model of the cart.
@@ -16,6 +18,7 @@
 			this.Items = new List<CartItem>();
 		}
 
+		[Required]
 		/// <summary>
 		/// The identifier of the cart. Generated on the client side.
 		/// </summary>
