@@ -6,7 +6,7 @@ namespace Catalog.Core.Interfaces
 	{
 		Task<Category> GetCategoryAsync(int caterogyId);
 
-		Task<IEnumerable<Category>> ListCaterogiesAsync();
+		Task<IEnumerable<Category>> ListCategoriesAsync();
 
 		Task<Category> AddCategoryAsync(Category category);
 

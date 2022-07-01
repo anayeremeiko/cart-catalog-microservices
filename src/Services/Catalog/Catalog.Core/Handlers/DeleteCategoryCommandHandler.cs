@@ -20,7 +20,7 @@ namespace Catalog.Core.Handlers
 		public async Task<Unit> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
 		{
 			await categoryRepository.DeleteAsync(request.Category);
-			if (request.Category.Items.Count > 0)
+			if (request.Category.Items?.Count > 0)
 			{
 				foreach (var item in request.Category.Items)
 				{

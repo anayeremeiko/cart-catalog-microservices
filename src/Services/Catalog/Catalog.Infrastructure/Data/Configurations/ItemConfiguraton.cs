@@ -9,15 +9,17 @@ namespace Catalog.Infrastructure.Data.Configurations
 		public void Configure(EntityTypeBuilder<Item> builder)
 		{
 			var navigation = builder.Metadata.FindNavigation(nameof(Category));
-			navigation.SetPropertyAccessMode(PropertyAccessMode.Field);
+			navigation?.SetPropertyAccessMode(PropertyAccessMode.Field);
 
 			builder.HasKey(i => i.Id);
 
 			builder.Property(i => i.Name).HasMaxLength(50).IsRequired();
 			builder.Property(i => i.Price).IsRequired();
 			builder.Property(i => i.Amount).IsRequired();
+			builder.Property(i => i.Description).IsRequired(false);
+			builder.Property(i => i.ImageUrl).IsRequired(false);
 			builder.Property<int>("CategoryForeignKey");
-			builder.HasOne(i => i.Category).WithOne().HasForeignKey("CategoryForeignKey");
+			builder.HasOne(i => i.Category).WithMany(x => x.Items).HasForeignKey("CategoryForeignKey");
 		}
 	}
 }

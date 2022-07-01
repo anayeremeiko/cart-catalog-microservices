@@ -8,9 +8,13 @@ namespace Catalog.Infrastructure.Data.Configurations
 	{
 		public void Configure(EntityTypeBuilder<Category> builder)
 		{
+			var navigation = builder.Metadata.FindNavigation(nameof(Category));
+			navigation?.SetPropertyAccessMode(PropertyAccessMode.Field);
+
 			builder.HasKey(x => x.Id);
 			builder.Property(x => x.Name).HasMaxLength(50).IsRequired();
-			builder.Property<int>("ParentCategoryForeignKey");
+			builder.Property(x => x.ImageUrl).IsRequired(false);
+			builder.Property<int?>("ParentCategoryForeignKey").IsRequired(false);
 			builder.HasOne(x => x.ParentCategory).WithMany().HasForeignKey("ParentCategoryForeignKey");
 		}
 	}

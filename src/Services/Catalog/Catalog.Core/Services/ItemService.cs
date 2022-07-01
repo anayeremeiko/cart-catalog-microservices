@@ -36,6 +36,15 @@ namespace Catalog.Core.Services
 			return addedItem;
 		}
 
+		public async Task<int> CountAsync()
+		{
+			CountItemsQuery request = new CountItemsQuery();
+
+			var count = await mediator.Send(request);
+
+			return count;
+		}
+
 		/// <summary>
 		/// Deletes the item.
 		/// </summary>
@@ -73,6 +82,35 @@ namespace Catalog.Core.Services
 		public async Task<IEnumerable<Item>> ListItemsAsync()
 		{
 			GetItemsQuery request = new GetItemsQuery();
+			var items = await mediator.Send(request);
+
+			return items;
+		}
+
+		/// <summary>
+		/// Paginated items.
+		/// </summary>
+		/// <returns>Paginated items.</returns>
+		public async Task<IEnumerable<Item>> ListItemsAsync(int pageSize, int pageNumber)
+		{
+			GetItemsQuery request = new GetItemsQuery
+			{
+				PageSize = pageSize,
+				PageNumber = pageNumber
+			};
+			var items = await mediator.Send(request);
+
+			return items;
+		}
+
+		public async Task<IEnumerable<Item>> ListItemsAsync(int categoryIdToFilterBy, int pageSize, int pageNumber)
+		{
+			GetItemsQuery request = new GetItemsQuery
+			{
+				PageSize = pageSize,
+				PageNumber = pageNumber,
+				CategoryIdToFilterBy = categoryIdToFilterBy,
+			};
 			var items = await mediator.Send(request);
 
 			return items;

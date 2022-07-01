@@ -8,7 +8,7 @@ namespace Catalog.Core.Entities
 	/// </summary>
 	public class Category : BaseEntity, IAggregateRoot
 	{
-		public Category(int id, string name) : this(id, name, imageUrl: null, parentCategory: null, items: null)
+		/*public Category(int id, string name) : this(id, name, imageUrl: null, parentCategory: null, items: null)
 		{
 		}
 
@@ -43,28 +43,28 @@ namespace Catalog.Core.Entities
 			ImageUrl = imageUrl;
 			ParentCategory = parentCategory;
 			InternalItems = new List<Item>(items);
-		}
+		}*/
 
 		/// <summary>
 		/// The name of the category. Required.
 		/// </summary>
-		public string Name { get; private set; }
+		public string Name { get; set; }
 
 		/// <summary>
 		/// The URL of the image.
 		/// </summary>
-		public string ImageUrl { get; private set; }
+		public string ImageUrl { get; set; }
 
 		/// <summary>
 		/// The parent category of the category.
 		/// </summary>
-		public Category ParentCategory { get; private set; }
+		public Category ParentCategory { get; set; }
 
-		private List<Item> InternalItems { get; set; }
+		public List<Item> Items { get; set; }
 
 		/// <summary>
 		/// Items that category contains.
 		/// </summary>
-		public IReadOnlyCollection<Item> Items => this.InternalItems.AsReadOnly();
+		//public IReadOnlyCollection<Item> Items => this.InternalItems.AsReadOnly();
 	}
 }

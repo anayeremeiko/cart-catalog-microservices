@@ -73,7 +73,7 @@ namespace Catalog.Core.Services
 		/// Lists categories.
 		/// </summary>
 		/// <returns>All categories.</returns>
-		public async Task<IEnumerable<Category>> ListCaterogiesAsync()
+		public async Task<IEnumerable<Category>> ListCategoriesAsync()
 		{
 			GetCategoriesQuery request = new GetCategoriesQuery();
 			var categories = await mediator.Send(request);

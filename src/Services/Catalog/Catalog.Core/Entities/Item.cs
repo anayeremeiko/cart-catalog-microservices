@@ -8,7 +8,7 @@ namespace Catalog.Core.Entities
 	/// </summary>
 	public class Item : BaseEntity, IAggregateRoot
 	{
-		public Item(int id, string name, Category category, decimal price, int amount) : this(id, name, description: null, category, imageUrl: null, price, amount)
+		/*public Item(int id, string name, Category category, decimal price, int amount) : this(id, name, description: null, category, imageUrl: null, price, amount)
 		{
 		}
 
@@ -29,37 +29,37 @@ namespace Catalog.Core.Entities
 			Category = category;
 			Price = price;
 			Amount = amount;
-		}
+		}*/
 
 		/// <summary>
 		/// The name of the item. Required.
 		/// </summary>
-		public string Name { get; private set; }
+		public string Name { get; set; }
 
 		/// <summary>
 		/// The description of the item.
 		/// </summary>
-		public string Description { get; private set; }
+		public string Description { get; set; }
 
 		/// <summary>
 		/// The url of the item image.
 		/// </summary>
-		public string ImageUrl { get; private set; }
+		public string ImageUrl { get; set; }
 
 		/// <summary>
 		/// The category that item belongs to. Required.
 		/// </summary>
-		public Category Category { get; private set; }
+		public Category Category { get; set; }
 
 		/// <summary>
 		/// The price of the item. Required.
 		/// </summary>
-		public decimal Price { get; private set; }
+		public decimal Price { get; set; }
 
 		/// <summary>
 		/// The amount of the item. Required.
 		/// </summary>
-		public int Amount { get; private set; }
+		public int Amount { get; set; }
 
 		public bool EqualToItem(Item secondItem)
 		{
