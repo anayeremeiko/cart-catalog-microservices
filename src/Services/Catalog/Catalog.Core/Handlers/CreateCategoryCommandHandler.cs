@@ -20,11 +20,11 @@ namespace Catalog.Core.Handlers
 		public async Task<Category> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
 		{
 			await categoryRepository.AddAsync(request.NewCategory);
-			if (request.NewCategory.Items.Count > 0)
+			if (request.NewCategory.Items?.Count > 0)
 			{
 				foreach(var item in request.NewCategory.Items)
 				{
-					await itemService.AddItemAsync(item);
+					await itemService.AddItemAsync(item.Id, item.Name, item.Description, item.ImageUrl, item.Category.Id, item.Price, item.Amount);
 				}
 			}
 

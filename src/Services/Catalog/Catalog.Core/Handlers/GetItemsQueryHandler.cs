@@ -16,7 +16,12 @@ namespace Catalog.Core.Handlers
 
 		public async Task<IEnumerable<Item>> Handle(GetItemsQuery request, CancellationToken cancellationToken)
 		{
-			return await repository.GetAllAsync();
+			Func<Item, bool>? filter = request.CategoryIdToFilterBy.HasValue ? (item) =>
+			{
+				return item.Category.Id == request.CategoryIdToFilterBy.Value;
+			}
+			: null;
+			return await repository.GetAllAsync(filteringCondition: filter, request.PageSize, request.PageNumber);
 		}
 	}
 }

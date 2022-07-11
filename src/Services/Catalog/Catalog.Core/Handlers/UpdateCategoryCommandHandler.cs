@@ -21,32 +21,39 @@ namespace Catalog.Core.Handlers
 		{
 			await this.categoryRepository.UpdateAsync(request.UpdatedCategory);
 
-			var updatedItems = request.UpdatedCategory.Items.ToList();
+			var updatedItems = request.UpdatedCategory.Items?.ToList();
 
-			var existingItemsIds = updatedItems.Select(x => x.Id).Intersect(request.CurrentCategory.Items.Select(i => i.Id));
-			
-			foreach(var item in updatedItems)
+			if (updatedItems == null)
+			{
+				return request.UpdatedCategory;
+			}
+
+			var existingItemsIds = updatedItems?.Select(x => x.Id).Intersect(request.CurrentCategory.Items.Select(i => i.Id));
+
+			foreach (var item in updatedItems)
 			{
 				if (!existingItemsIds.Contains(item.Id))
 				{
-					await itemService.AddItemAsync(item);
+					await itemService.AddItemAsync(item.Id, item.Name, item.Description, item.ImageUrl, item.Category.Id, item.Price, item.Amount);
 				}
 			}
 
-			foreach (var item in request.CurrentCategory.Items) {
+			foreach (var item in request.CurrentCategory.Items)
+			{
 				var updatedItem = updatedItems.Find(i => i.Id == item.Id);
 				if (updatedItem == null)
 				{
 					await itemService.DeleteItemAsync(item);
-				} else
+				}
+				else
 				{
 					if (!item.EqualToItem(updatedItem))
 					{
-						await itemService.UpdateItemAsync(updatedItem);
+						await itemService.UpdateItemAsync(updatedItem.Id, updatedItem.Name, updatedItem.Description, updatedItem.ImageUrl, updatedItem.Category.Id, updatedItem.Price, updatedItem.Amount);
 					}
 				}
 			}
-			
+
 			return request.UpdatedCategory;
 		}
 	}

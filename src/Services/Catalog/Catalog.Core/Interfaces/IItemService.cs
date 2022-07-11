@@ -8,10 +8,16 @@ namespace Catalog.Core.Interfaces
 
 		Task<IEnumerable<Item>> ListItemsAsync();
 
-		Task<Item> AddItemAsync(Item item);
+		Task<IEnumerable<Item>> ListItemsAsync(int pageSize, int pageNumber);
 
-		Task<Item> UpdateItemAsync(Item item);
+		Task<IEnumerable<Item>> ListItemsAsync(int categoryIdToFilterBy, int pageSize, int pageNumber);
+
+		Task<Item> AddItemAsync(int id, string name, string description, string imageUrl, int categoryId, decimal price, int amount);
+
+		Task<Item> UpdateItemAsync(int id, string name, string description, string imageUrl, int categoryId, decimal price, int amount);
 
 		Task DeleteItemAsync(Item item);
+
+		Task<int> CountAsync();
 	}
 }

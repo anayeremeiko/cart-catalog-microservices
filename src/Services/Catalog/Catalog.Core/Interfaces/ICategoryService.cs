@@ -6,11 +6,11 @@ namespace Catalog.Core.Interfaces
 	{
 		Task<Category> GetCategoryAsync(int caterogyId);
 
-		Task<IEnumerable<Category>> ListCaterogiesAsync();
+		Task<IEnumerable<Category>> ListCategoriesAsync();
 
-		Task<Category> AddCategoryAsync(Category category);
+		Task<Category> AddCategoryAsync(int id, string name, string imageUrl, int? parentCategoryId);
 
-		Task<Category> UpdateCategoryAsync(Category category);
+		Task<Category> UpdateCategoryAsync(int id, string name, string imageUrl, int? parentCategoryId);
 
 		Task DeleteCategoryAsync(Category category);
 	}
