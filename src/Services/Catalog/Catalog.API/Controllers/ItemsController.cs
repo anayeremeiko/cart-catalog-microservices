@@ -21,98 +21,100 @@ namespace Catalog.API.Controllers
 			this.uriService = uriService;
 		}
 
+		/// <summary>
+		/// Get a paginated list of items. Can be filtered by category identifier.
+		/// </summary>
+		/// <param name="paginationFilter">Parameters for pagination: page size,
+		/// page number. By default page size is 10, page number is 1.</param>
+		/// <param name="categoryId">Category identifier to filter items by.</param>
+		/// <returns>A paginated list of items.</returns>
 		[HttpGet()]
 		public async Task<PagedResponse<List<Item>>> GetItems([FromQuery] PaginationFilter paginationFilter, [FromQuery] int? categoryId = null)
 		{
-			var validFilter = new PaginationFilter(paginationFilter.PageNumber, paginationFilter.PageSize);
-			var items = await itemsService.ListItemsAsync(validFilter.PageSize, validFilter.PageNumber);
+			var validFilter = new PaginationFilter(paginationFilter.PageNumber.Value, paginationFilter.PageSize.Value);
+			var items = categoryId.HasValue
+				? await itemsService.ListItemsAsync(categoryId.Value, validFilter.PageSize.Value, validFilter.PageNumber.Value) 
+				: await itemsService.ListItemsAsync(validFilter.PageSize.Value, validFilter.PageNumber.Value);
 			var totalRecords = await itemsService.CountAsync();
 			var pagedReponse = PaginationHelper.CreatePagedReponse<Item>(items.ToList(), validFilter, totalRecords, uriService, Request.Path.Value);
 
 			return pagedReponse;
 		}
 
+		/// <summary>
+		/// Add new item
+		/// </summary>
+		/// <param name="id">New item identifier</param>
+		/// <param name="item">New item parameters</param>
+		/// <returns>Created item</returns>
 		[HttpPost("{id}")]
-		public async Task<IActionResult> AddItem(int id, Item item)
+		public async Task<IActionResult> AddItem(int id, UpdatedItem item)
 		{
-			if (item.Id != id)
-			{
-				return BadRequest();
-			}
+			var addedItem = await itemsService.AddItemAsync(id, item.Name, item.Description, item.ImageUrl, item.CategoryId, item.Price, item.Amount);
 
-			try
-			{
-				var addedItem = await itemsService.AddItemAsync(item);
-
-				return Created($"api/items/{addedItem.Id}", new Response<Item> {
-					Data = addedItem,
-					Links = new List<Link>
-					{
-						new Link
-						{
-							Action = "PUT",
-							Href = $"api/items/{addedItem.Id}",
-							Rel = "self"
-						},
-						new Link
-						{
-							Action = "DELETE",
-							Href = $"api/items/{addedItem.Id}",
-							Rel = "self"
-						},
-						new Link
-						{
-							Action = "GET",
-							Href = $"api/categories/{addedItem.Category.Id}",
-							Rel = "category"
-						}
-					}
-				});
-			}
-			catch (Exception exception)
-			{
-				return StatusCode(500, exception.Message);
-			}
-		}
-
-		[HttpPut("{id}")]
-		public async Task<IActionResult> UpdateItem(int id, Item item)
-		{
-			if (item.Id != id)
-			{
-				return BadRequest();
-			}
-
-			try
-			{
-				var updatedItem = await itemsService.UpdateItemAsync(item);
-
-				return Ok(new Response<Item>
+			return Created($"api/items/{addedItem.Id}", new Response<Item> {
+				Data = addedItem,
+				Links = new List<Link>
 				{
-					Data = updatedItem,
-					Links = new List<Link>
+					new Link
 					{
-						new Link
-						{
-							Action = "DELETE",
-							Href = $"api/items/{updatedItem.Id}",
-							Rel = "self"
-						},
-						new Link
-						{
-							Action = "GET",
-							Href = $"api/categories/{updatedItem.Category.Id}",
-							Rel = "category"
-						}
+						Action = "PUT",
+						Href = $"api/items/{addedItem.Id}",
+						Rel = "self"
+					},
+					new Link
+					{
+						Action = "DELETE",
+						Href = $"api/items/{addedItem.Id}",
+						Rel = "self"
+					},
+					new Link
+					{
+						Action = "GET",
+						Href = $"api/categories/{addedItem.Category.Id}",
+						Rel = "category"
 					}
-				});
-			}
-			catch (Exception exception)
-			{
-				return StatusCode(500, exception.Message);
-			}
+				}
+			});
 		}
 
+		/// <summary>
+		/// Update existing item
+		/// </summary>
+		/// <param name="id">Existing item identifier</param>
+		/// <param name="item">Updated item parameters</param>
+		/// <returns>Updated item</returns>
+		[HttpPut("{id}")]
+		public async Task<IActionResult> UpdateItem(int id, UpdatedItem item)
+		{
+			var updatedItem = await itemsService.UpdateItemAsync(id, item.Name, item.Description, item.ImageUrl, item.CategoryId, item.Price, item.Amount);
+
+			return Ok(new Response<Item>
+			{
+				Data = updatedItem,
+				Links = new List<Link>
+				{
+					new Link
+					{
+						Action = "DELETE",
+						Href = $"api/items/{updatedItem.Id}",
+						Rel = "self"
+					},
+					new Link
+					{
+						Action = "GET",
+						Href = $"api/categories/{updatedItem.Category.Id}",
+						Rel = "category"
+					}
+				}
+			});
+		}
+
+		/// <summary>
+		/// Delete existing item
+		/// </summary>
+		/// <param name="id">Item identifier</param>
+		/// <returns></returns>
 		[HttpDelete("{id}")]
 		public async Task<IActionResult> DeleteItem(int id)
 		{

@@ -1,3 +1,4 @@
+using Catalog.API.Models;
 using Catalog.Core.Entities;
 using Catalog.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,10 @@ namespace Catalog.API.Controllers
 			categoryService = service;
 		}
 
+		/// <summary>
+		/// Get a list of all categories
+		/// </summary>
+		/// <returns>A list of categories</returns>
 		[HttpGet()]
 		public async Task<IEnumerable<Category>> GetCategories()
 		{
@@ -23,45 +28,39 @@ namespace Catalog.API.Controllers
 			return categories;
 		}
 
+		/// <summary>
+		/// Add new category
+		/// </summary>
+		/// <param name="id">New category identifier.</param>
+		/// <param name="category">New category parameters</param>
+		/// <returns>Created category</returns>
 		[HttpPost("{id}")]
-		public async Task<IActionResult> AddCategory(int id, Category category)
+		public async Task<IActionResult> AddCategory(int id, UpdatedCategory category)
 		{
-			if (category.Id != id)
-			{
-				return BadRequest();
-			}
+			var addedCategory = await categoryService.AddCategoryAsync(id, category.Name, category.ImageUrl, category.ParentCategoryId);
 
-			try
-			{
-				var addedCategory = await categoryService.AddCategoryAsync(category);
-
-				return Created($"api/categories/{id}", addedCategory);
-			} catch(Exception exception)
-			{
-				return StatusCode(500, exception.Message);
-			}
+			return Created($"api/categories/{id}", addedCategory);
 		}
 
+		/// <summary>
+		/// Update existing category
+		/// </summary>
+		/// <param name="id">Category identifier.</param>
+		/// <param name="category">Updated category parameters.</param>
+		/// <returns>Updated category</returns>
 		[HttpPut("{id}")]
-		public async Task<IActionResult> UpdateCategory(int id, Category category)
+		public async Task<IActionResult> UpdateCategory(int id, UpdatedCategory category)
 		{
-			if (category.Id != id)
-			{
-				return BadRequest();
-			}
+			var updatedCategory = await categoryService.UpdateCategoryAsync(id, category.Name, category.ImageUrl, category.ParentCategoryId);
 
-			try
-			{
-				var updatedCategory = await categoryService.UpdateCategoryAsync(category);
-
-				return Ok(updatedCategory);
-			}
-			catch (Exception exception)
-			{
-				return StatusCode(500, exception.Message);
-			}
+			return Ok(updatedCategory);
 		}
 
+		/// <summary>
+		/// Delete existing category
+		/// </summary>
+		/// <param name="id">Category identifier</param>
+		/// <returns></returns>
 		[HttpDelete("{id}")]
 		public async Task<IActionResult> DeleteCategory(int id)
 		{

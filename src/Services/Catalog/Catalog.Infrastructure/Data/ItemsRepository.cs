@@ -1,21 +1,42 @@
-﻿using Catalog.Core.Entities;
+﻿using AutoMapper;
+using Catalog.Core.Entities;
+using Catalog.Infrastructure.Entities;
+using Catalog.SharedKernel.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Infrastructure.Data
 {
-	public class ItemsRepository : Repository<Item>
+	public class ItemsRepository : IRepository<Item>
 	{
 		private readonly DbContext appDbContext;
+		private readonly IMapper mapper;
 
-		public ItemsRepository(DbContext dbContext) : base(dbContext)
+		public ItemsRepository(DbContext dbContext, IMapper mapper)
 		{
 			appDbContext = dbContext;
+			this.mapper = mapper;
+		}
+
+		public new async Task<Item> AddAsync(Item entity)
+		{
+			ItemDTO newItem = mapper.Map<ItemDTO>(entity);
+			appDbContext.Entry(newItem).State = EntityState.Added;
+			await appDbContext.SaveChangesAsync();
+
+			return entity;
+		}
+
+		public new async Task DeleteAsync(Item entity)
+		{
+			ItemDTO itemToDelete = mapper.Map<ItemDTO>(entity);
+			appDbContext.Entry(itemToDelete).State = EntityState.Deleted;
+			await appDbContext.SaveChangesAsync();
 		}
 
 		public new async Task<Item> UpdateAsync(Item entity)
 		{
-			appDbContext.Entry(entity).State = EntityState.Modified;
-			appDbContext.Entry(entity).Property(i => i.Category).IsModified = false;
+			ItemDTO updatedItem = mapper.Map<ItemDTO>(entity);
+			appDbContext.Entry(updatedItem).State = EntityState.Modified;
 			await appDbContext.SaveChangesAsync();
 
 			return entity;

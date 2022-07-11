@@ -23,9 +23,6 @@ namespace Catalog.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("CategoryForeignKey")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("ImageUrl")
                         .HasColumnType("TEXT");
 
@@ -34,15 +31,12 @@ namespace Catalog.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("ParentCategoryForeignKey")
+                    b.Property<int?>("ParentCategoryId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryForeignKey")
-                        .IsUnique();
-
-                    b.HasIndex("ParentCategoryForeignKey");
+                    b.HasIndex("ParentCategoryId");
 
                     b.ToTable("Categories", (string)null);
                 });
@@ -56,10 +50,7 @@ namespace Catalog.Infrastructure.Migrations
                     b.Property<int>("Amount")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("CategoryForeignKey")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("CategoryId")
+                    b.Property<int>("CategoryId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Description")
@@ -85,33 +76,27 @@ namespace Catalog.Infrastructure.Migrations
 
             modelBuilder.Entity("Catalog.Core.Entities.Category", b =>
                 {
-                    b.HasOne("Catalog.Core.Entities.Item", null)
-                        .WithOne("Category")
-                        .HasForeignKey("Catalog.Core.Entities.Category", "CategoryForeignKey");
-
                     b.HasOne("Catalog.Core.Entities.Category", "ParentCategory")
                         .WithMany()
-                        .HasForeignKey("ParentCategoryForeignKey");
+                        .HasForeignKey("ParentCategoryId");
 
                     b.Navigation("ParentCategory");
                 });
 
             modelBuilder.Entity("Catalog.Core.Entities.Item", b =>
                 {
-                    b.HasOne("Catalog.Core.Entities.Category", null)
+                    b.HasOne("Catalog.Core.Entities.Category", "Category")
                         .WithMany("Items")
-                        .HasForeignKey("CategoryId");
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("Catalog.Core.Entities.Category", b =>
                 {
                     b.Navigation("Items");
-                });
-
-            modelBuilder.Entity("Catalog.Core.Entities.Item", b =>
-                {
-                    b.Navigation("Category")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

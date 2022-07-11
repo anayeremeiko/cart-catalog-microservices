@@ -1,14 +1,15 @@
 ﻿using Catalog.Core.Entities;
+using Catalog.Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Catalog.Infrastructure.Data.Configurations
 {
-	public class ItemConfiguraton : IEntityTypeConfiguration<Item>
+	public class ItemConfiguraton : IEntityTypeConfiguration<ItemDTO>
 	{
-		public void Configure(EntityTypeBuilder<Item> builder)
+		public void Configure(EntityTypeBuilder<ItemDTO> builder)
 		{
-			var navigation = builder.Metadata.FindNavigation(nameof(Category));
+			var navigation = builder.Metadata.FindNavigation(nameof(CategoryDTO));
 			navigation?.SetPropertyAccessMode(PropertyAccessMode.Field);
 
 			builder.HasKey(i => i.Id);
@@ -18,8 +19,6 @@ namespace Catalog.Infrastructure.Data.Configurations
 			builder.Property(i => i.Amount).IsRequired();
 			builder.Property(i => i.Description).IsRequired(false);
 			builder.Property(i => i.ImageUrl).IsRequired(false);
-			builder.Property<int>("CategoryForeignKey");
-			builder.HasOne(i => i.Category).WithMany(x => x.Items).HasForeignKey("CategoryForeignKey");
 		}
 	}
 }

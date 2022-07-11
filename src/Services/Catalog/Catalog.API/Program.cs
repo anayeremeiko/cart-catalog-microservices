@@ -5,6 +5,7 @@ using Catalog.Core.Interfaces;
 using Catalog.Core.Services;
 using Catalog.Core.Validators;
 using Catalog.Infrastructure.Data;
+using Catalog.Infrastructure.Entities;
 using Catalog.SharedKernel.Interfaces;
 using FluentValidation.AspNetCore;
 using MediatR;
@@ -17,10 +18,13 @@ var builder = WebApplication.CreateBuilder(args);
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddScoped<DbContext, AppDbContext>();
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
-builder.Services.AddScoped(typeof(IReadRepository<>), typeof(ReadRepository<>));
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddDbContext<AppDbContext>(options => {
+    options.UseSqlite(connectionString).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTrackingWithIdentityResolution);
+});
+builder.Services.AddScoped(typeof(Catalog.SharedKernel.Interfaces.IReadRepository<Item>), typeof(ItemsReadRepository));
 builder.Services.AddScoped(typeof(IRepository<Item>), typeof(ItemsRepository));
+builder.Services.AddScoped(typeof(IRepository<Category>), typeof(CategoriesRepository));
+builder.Services.AddScoped(typeof(Catalog.SharedKernel.Interfaces.IReadRepository<Category>), typeof(CategoriesReadRepository));
 builder.Services.AddMediatR(Assembly.GetExecutingAssembly(), typeof(ICategoryService).Assembly);
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IItemService, ItemService>();
@@ -33,6 +37,7 @@ builder.Services.AddSingleton<IUriService>(o =>
     var uri = string.Concat(request.Scheme, "://", request.Host.ToUriComponent());
     return new UriService(uri);
 });
+builder.Services.AddAutoMapper(typeof(EntitiesProfile));
 
 // Add services to the container.
 builder.Services.AddControllers(options => options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true);
@@ -40,9 +45,14 @@ builder.Services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyCont
 builder.Services.AddFluentValidationRulesToSwagger();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options => {
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.XML";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    options.IncludeXmlComments(xmlPath);
+});
 
 var app = builder.Build();
+app.UseExceptionHandler("/error");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

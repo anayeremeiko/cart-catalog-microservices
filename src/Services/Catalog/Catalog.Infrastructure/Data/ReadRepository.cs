@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Catalog.Infrastructure.Data
 {
-	public class ReadRepository<T> : IReadRepository<T> where T : class, IAggregateRoot
+	public class IReadRepository<T> : SharedKernel.Interfaces.IReadRepository<T> where T : class, IAggregateRoot
 	{
 		private readonly DbContext appDbContext;
 
-		public ReadRepository(DbContext dbContext)
+		public IReadRepository(DbContext dbContext)
 		{
 			appDbContext = dbContext;
 		}

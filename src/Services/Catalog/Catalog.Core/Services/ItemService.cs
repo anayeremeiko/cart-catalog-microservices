@@ -11,10 +11,12 @@ namespace Catalog.Core.Services
 	public class ItemService : IItemService
 	{
 		private readonly IMediator mediator;
+		private readonly ICategoryService categoryService;
 
-		public ItemService(IMediator mediator)
+		public ItemService(IMediator mediator, ICategoryService categoryService)
 		{
 			this.mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+			this.categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
 		}
 
 		/// <summary>
@@ -22,8 +24,24 @@ namespace Catalog.Core.Services
 		/// </summary>
 		/// <param name="item">New item.</param>
 		/// <returns>Added item.</returns>
-		public async Task<Item> AddItemAsync(Item item)
+		public async Task<Item> AddItemAsync(int id, string name, string description, string imageUrl, int categoryId, decimal price, int amount)
 		{
+			Category category = await this.categoryService.GetCategoryAsync(categoryId);
+			if (category == null)
+			{
+				throw new ArgumentNullException(nameof(category));
+			}
+
+			Item item = new Item()
+			{
+				Id = id,
+				Name = name,
+				Description = description,
+				ImageUrl = imageUrl,
+				Category = category,
+				Price = price,
+				Amount = amount
+			};
 			var validator = new ItemValidator();
 			await validator.ValidateAndThrowAsync(item);
 
@@ -121,8 +139,24 @@ namespace Catalog.Core.Services
 		/// </summary>
 		/// <param name="item">Updated item.</param>
 		/// <returns>Updated item.</returns>
-		public async Task<Item> UpdateItemAsync(Item item)
+		public async Task<Item> UpdateItemAsync(int id, string name, string description, string imageUrl, int categoryId, decimal price, int amount)
 		{
+			Category category = await this.categoryService.GetCategoryAsync(categoryId);
+			if (category == null)
+			{
+				throw new ArgumentNullException(nameof(category));
+			}
+
+			Item item = new Item()
+			{
+				Id = id,
+				Name = name,
+				Description = description,
+				ImageUrl = imageUrl,
+				Category = category,
+				Price = price,
+				Amount = amount
+			};
 			var validator = new ItemValidator();
 			await validator.ValidateAndThrowAsync(item);
 

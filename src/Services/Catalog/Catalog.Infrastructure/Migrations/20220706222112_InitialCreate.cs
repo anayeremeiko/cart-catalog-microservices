@@ -15,16 +15,15 @@ namespace Catalog.Infrastructure.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-                    ImageUrl = table.Column<string>(type: "TEXT", nullable: false),
-                    ParentCategoryForeignKey = table.Column<int>(type: "INTEGER", nullable: false),
-                    CategoryForeignKey = table.Column<int>(type: "INTEGER", nullable: true)
+                    ImageUrl = table.Column<string>(type: "TEXT", nullable: true),
+                    ParentCategoryId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Categories", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Categories_Categories_ParentCategoryForeignKey",
-                        column: x => x.ParentCategoryForeignKey,
+                        name: "FK_Categories_Categories_ParentCategoryId",
+                        column: x => x.ParentCategoryId,
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -37,12 +36,11 @@ namespace Catalog.Infrastructure.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-                    Description = table.Column<string>(type: "TEXT", nullable: false),
-                    ImageUrl = table.Column<string>(type: "TEXT", nullable: false),
+                    Description = table.Column<string>(type: "TEXT", nullable: true),
+                    ImageUrl = table.Column<string>(type: "TEXT", nullable: true),
+                    CategoryId = table.Column<int>(type: "INTEGER", nullable: false),
                     Price = table.Column<decimal>(type: "TEXT", nullable: false),
-                    Amount = table.Column<int>(type: "INTEGER", nullable: false),
-                    CategoryForeignKey = table.Column<int>(type: "INTEGER", nullable: false),
-                    CategoryId = table.Column<int>(type: "INTEGER", nullable: true)
+                    Amount = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -51,39 +49,23 @@ namespace Catalog.Infrastructure.Migrations
                         name: "FK_Items_Categories_CategoryId",
                         column: x => x.CategoryId,
                         principalTable: "Categories",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Categories_CategoryForeignKey",
+                name: "IX_Categories_ParentCategoryId",
                 table: "Categories",
-                column: "CategoryForeignKey",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Categories_ParentCategoryForeignKey",
-                table: "Categories",
-                column: "ParentCategoryForeignKey");
+                column: "ParentCategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Items_CategoryId",
                 table: "Items",
                 column: "CategoryId");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Categories_Items_CategoryForeignKey",
-                table: "Categories",
-                column: "CategoryForeignKey",
-                principalTable: "Items",
-                principalColumn: "Id");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Categories_Items_CategoryForeignKey",
-                table: "Categories");
-
             migrationBuilder.DropTable(
                 name: "Items");
 

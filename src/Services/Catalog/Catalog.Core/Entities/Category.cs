@@ -58,7 +58,7 @@ namespace Catalog.Core.Entities
 		/// <summary>
 		/// The parent category of the category.
 		/// </summary>
-		public Category ParentCategory { get; set; }
+		public Category? ParentCategory { get; set; }
 
 		public List<Item> Items { get; set; }
 

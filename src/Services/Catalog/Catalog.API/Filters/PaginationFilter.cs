@@ -2,9 +2,15 @@
 {
 	public class PaginationFilter
 	{
-        public int PageNumber { get; set; }
+        /// <summary>
+        /// Page number. Default value: 1
+        /// </summary>
+        public int? PageNumber { get; set; }
 
-        public int PageSize { get; set; }
+        /// <summary>
+        /// Page size. Default value: 10
+        /// </summary>
+        public int? PageSize { get; set; }
 
         public PaginationFilter()
         {

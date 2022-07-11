@@ -25,14 +25,31 @@ namespace Catalog.Core.Services
 		/// </summary>
 		/// <param name="category">New category.</param>
 		/// <returns>Added category.</returns>
-		public async Task<Category> AddCategoryAsync(Category category)
+		public async Task<Category> AddCategoryAsync(int id, string name, string imageUrl, int? parentCategoryId)
 		{
+			Category parentCategory = null;
+			if (parentCategoryId.HasValue)
+			{
+				parentCategory = await this.GetCategoryAsync(parentCategoryId.Value);
+				if (parentCategory == null)
+				{
+					throw new ArgumentException(nameof(parentCategoryId));
+				}
+			}
+			Category category = new Category()
+			{
+				Id = id,
+				Name = name,
+				ImageUrl = imageUrl,
+				ParentCategory = parentCategory
+			};
+
 			var validator = new CategoryValidator();
 			await validator.ValidateAndThrowAsync(category);
 
 			CreateCategoryCommand request = new CreateCategoryCommand() 
 			{ 
-				NewCategory = category 
+				NewCategory = category
 			};
 			var addedCategory = await mediator.Send(request);
 
@@ -86,8 +103,25 @@ namespace Catalog.Core.Services
 		/// </summary>
 		/// <param name="category">Updated category.</param>
 		/// <returns>Updated category.</returns>
-		public async Task<Category> UpdateCategoryAsync(Category category)
+		public async Task<Category> UpdateCategoryAsync(int id, string name, string imageUrl, int? parentCategoryId)
 		{
+			Category parentCategory = null;
+			if (parentCategoryId.HasValue)
+			{
+				parentCategory = await this.GetCategoryAsync(parentCategoryId.Value);
+				if (parentCategory == null)
+				{
+					throw new ArgumentException(nameof(parentCategoryId));
+				}
+			}
+			Category category = new Category()
+			{
+				Id = id,
+				Name = name,
+				ImageUrl = imageUrl,
+				ParentCategory = parentCategory
+			};
+
 			var validator = new CategoryValidator();
 			await validator.ValidateAndThrowAsync(category);
 
