@@ -13,6 +13,8 @@
 		/// <returns>The entity with provided id.</returns>
 		T GetById(string id);
 
+		List<T> GetAllWithItem(int itemId);
+
 		/// <summary>
 		/// Adds entity.
 		/// </summary>

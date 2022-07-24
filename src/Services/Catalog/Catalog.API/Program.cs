@@ -8,6 +8,7 @@ using Catalog.Infrastructure.Data;
 using Catalog.Infrastructure.Entities;
 using Catalog.SharedKernel.Interfaces;
 using FluentValidation.AspNetCore;
+using MassTransit;
 using MediatR;
 using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +39,19 @@ builder.Services.AddSingleton<IUriService>(o =>
     return new UriService(uri);
 });
 builder.Services.AddAutoMapper(typeof(EntitiesProfile));
+
+builder.Services.AddMassTransit(x =>
+{
+    x.UsingRabbitMq((context, config) =>
+    {
+        config.Host(new Uri("rabbitmq://localhost"), h =>
+        {
+            h.Username("guest");
+            h.Password("guest");
+        });
+        config.ConfigureEndpoints(context);
+    });
+});
 
 // Add services to the container.
 builder.Services.AddControllers(options => options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true);
