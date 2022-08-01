@@ -78,5 +78,27 @@ namespace eShopServices.Services.Cart.Cart.API.Services
 
 			return cart;
 		}
+
+		public void UpdateItemInCarts(CartItem item)
+		{
+			if (item == null)
+			{
+				throw new ArgumentNullException(nameof(item));
+			}
+
+			List<Models.Cart> cartsWithItem = this.dataService.GetAllWithItem(item.Id);
+			if (cartsWithItem.Count == 0) return;
+
+			foreach (Models.Cart cart in cartsWithItem)
+			{
+				CartItem cartItem = cart.Items.First(i => i.Id == item.Id);
+				cartItem.Name = item.Name;
+				cartItem.ImageUrl = item.ImageUrl;
+				cartItem.ImageAlt = item.ImageAlt;
+				cartItem.Price = item.Price;
+
+				this.dataService.Update(cart);
+			}
+		}
 	}
 }

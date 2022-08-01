@@ -31,5 +31,7 @@ namespace eShopServices.Services.Cart.Cart.API.Services.Interfaces
 		/// <param name="itemId">The id of the item to remove.</param>
 		/// <returns>The updated cart.</returns>
 		Models.Cart RemoveItemFromCart(string cartId, int itemId);
+
+		void UpdateItemInCarts(CartItem item);
 	}
 }

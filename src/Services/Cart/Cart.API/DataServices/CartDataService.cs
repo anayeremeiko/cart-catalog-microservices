@@ -54,5 +54,15 @@ namespace eShopServices.Services.Cart.Cart.API.DataServices
 
 			return this.repository.Query<Models.Cart>().Where(item => item.Id == id).FirstOrDefault();
 		}
+
+		public List<Models.Cart> GetAllWithItem(int itemId)
+		{
+			if (itemId < 0)
+			{
+				throw new ArgumentOutOfRangeException(nameof(itemId));
+			}
+
+			return this.repository.Query<Models.Cart>().Where(cart => cart.Items.Select(i => i.Id).Any(id => id == itemId)).ToList();
+		}
 	}
 }

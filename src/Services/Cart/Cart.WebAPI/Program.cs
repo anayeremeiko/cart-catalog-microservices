@@ -1,9 +1,11 @@
 using Cart.WebAPI;
+using Cart.WebAPI.Consumers;
 using eShopServices.Services.Cart.Cart.API.DataServices;
 using eShopServices.Services.Cart.Cart.API.DataServices.Interfaces;
 using eShopServices.Services.Cart.Cart.API.Services;
 using eShopServices.Services.Cart.Cart.API.Services.Interfaces;
 using LiteDB;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Versioning;
@@ -11,6 +13,20 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddMassTransit(x =>
+{
+	x.AddConsumer<ItemChangedConsumer>();
+	x.SetKebabCaseEndpointNameFormatter();
+
+	x.UsingRabbitMq((context, config) => { 
+		config.ReceiveEndpoint("catalog-item-event", e =>
+		{
+			e.ConfigureConsumer<ItemChangedConsumer>(context);
+		});
+		config.UseMessageRetry(r => r.Intervals(100, 200, 500, 800, 1000));
+	});
+});
 
 // Add services to the container.
 

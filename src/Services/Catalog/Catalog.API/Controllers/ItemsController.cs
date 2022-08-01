@@ -4,7 +4,9 @@ using Catalog.API.Models;
 using Catalog.API.Services.Interfaces;
 using Catalog.Core.Entities;
 using Catalog.Core.Interfaces;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Models;
 
 namespace Catalog.API.Controllers
 {
@@ -14,11 +16,13 @@ namespace Catalog.API.Controllers
 	{
 		private readonly IItemService itemsService;
 		private readonly IUriService uriService;
+		private readonly IPublishEndpoint publishEndpoint;
 
-		public ItemsController(IItemService service, IUriService uriService)
+		public ItemsController(IItemService service, IUriService uriService, IPublishEndpoint publishEndpoint)
 		{
 			this.itemsService = service;
 			this.uriService = uriService;
+			this.publishEndpoint = publishEndpoint;
 		}
 
 		/// <summary>
@@ -52,7 +56,8 @@ namespace Catalog.API.Controllers
 		{
 			var addedItem = await itemsService.AddItemAsync(id, item.Name, item.Description, item.ImageUrl, item.CategoryId, item.Price, item.Amount);
 
-			return Created($"api/items/{addedItem.Id}", new Response<Item> {
+			return Created($"api/items/{addedItem.Id}", new Models.Response<Item>
+			{
 				Data = addedItem,
 				Links = new List<Link>
 				{
@@ -89,7 +94,16 @@ namespace Catalog.API.Controllers
 		{
 			var updatedItem = await itemsService.UpdateItemAsync(id, item.Name, item.Description, item.ImageUrl, item.CategoryId, item.Price, item.Amount);
 
-			return Ok(new Response<Item>
+			await publishEndpoint.Publish<CatalogItem>(new CatalogItem
+			{
+				Id = id,
+				Name = item.Name,
+				ImageAlt = item.Description,
+				ImageUrl = item.ImageUrl,
+				Price = item.Price
+			});
+
+			return Ok(new Models.Response<Item>
 			{
 				Data = updatedItem,
 				Links = new List<Link>
