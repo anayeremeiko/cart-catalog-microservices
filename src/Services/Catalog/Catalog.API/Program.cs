@@ -11,7 +11,9 @@ using FluentValidation.AspNetCore;
 using MassTransit;
 using MediatR;
 using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +31,7 @@ builder.Services.AddScoped(typeof(Catalog.SharedKernel.Interfaces.IReadRepositor
 builder.Services.AddMediatR(Assembly.GetExecutingAssembly(), typeof(ICategoryService).Assembly);
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IItemService, ItemService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<IUriService>(o =>
@@ -63,6 +66,26 @@ builder.Services.AddSwaggerGen(options => {
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.XML";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     options.IncludeXmlComments(xmlPath);
+    var jwtSecurityScheme = new OpenApiSecurityScheme
+    {
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Name = "JWT Authentication",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Description = "Put only your JWT Bearer token on textbox below",
+
+        Reference = new OpenApiReference
+        {
+            Id = JwtBearerDefaults.AuthenticationScheme,
+            Type = ReferenceType.SecurityScheme
+        }
+    };
+    options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, jwtSecurityScheme);
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        { jwtSecurityScheme, Array.Empty<string>() }
+    });
 });
 
 var app = builder.Build();

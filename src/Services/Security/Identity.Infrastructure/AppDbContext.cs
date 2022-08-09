@@ -1,9 +1,8 @@
-﻿using Catalog.Core.Entities;
-using Catalog.Infrastructure.Entities;
+﻿using Identity.Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
-namespace Catalog.Infrastructure.Data
+namespace Identity.Infrastructure
 {
 	public class AppDbContext : DbContext
 	{
@@ -11,9 +10,9 @@ namespace Catalog.Infrastructure.Data
 		{
 		}
 
-		public DbSet<CategoryDTO> Categories { get; set; }
+		public DbSet<UserRole> Roles { get; set; }
 
-		public DbSet<ItemDTO> Items { get; set; }
+		public DbSet<UserInformation> Users { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder builder)
 		{

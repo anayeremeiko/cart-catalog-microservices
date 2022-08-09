@@ -6,6 +6,7 @@ using Catalog.Core.Entities;
 using Catalog.Core.Interfaces;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using Shared.Models;
 
 namespace Catalog.API.Controllers
@@ -17,12 +18,14 @@ namespace Catalog.API.Controllers
 		private readonly IItemService itemsService;
 		private readonly IUriService uriService;
 		private readonly IPublishEndpoint publishEndpoint;
+		private readonly IAuthService authService;
 
-		public ItemsController(IItemService service, IUriService uriService, IPublishEndpoint publishEndpoint)
+		public ItemsController(IItemService service, IUriService uriService, IPublishEndpoint publishEndpoint, IAuthService authService)
 		{
 			this.itemsService = service;
 			this.uriService = uriService;
 			this.publishEndpoint = publishEndpoint;
+			this.authService = authService;
 		}
 
 		/// <summary>
@@ -54,6 +57,9 @@ namespace Catalog.API.Controllers
 		[HttpPost("{id}")]
 		public async Task<IActionResult> AddItem(int id, UpdatedItem item)
 		{
+			IActionResult? result = await this.AuthorizeUser(UserPermissions.Create);
+			if (result != null) return result;
+
 			var addedItem = await itemsService.AddItemAsync(id, item.Name, item.Description, item.ImageUrl, item.CategoryId, item.Price, item.Amount);
 
 			return Created($"api/items/{addedItem.Id}", new Models.Response<Item>
@@ -92,6 +98,10 @@ namespace Catalog.API.Controllers
 		[HttpPut("{id}")]
 		public async Task<IActionResult> UpdateItem(int id, UpdatedItem item)
 		{
+			IActionResult? result = await this.AuthorizeUser(UserPermissions.Update);
+
+			if (result != null) return result;
+
 			var updatedItem = await itemsService.UpdateItemAsync(id, item.Name, item.Description, item.ImageUrl, item.CategoryId, item.Price, item.Amount);
 
 			await publishEndpoint.Publish<CatalogItem>(new CatalogItem
@@ -132,10 +142,30 @@ namespace Catalog.API.Controllers
 		[HttpDelete("{id}")]
 		public async Task<IActionResult> DeleteItem(int id)
 		{
+			IActionResult? result = await this.AuthorizeUser(UserPermissions.Delete);
+			if (result != null) return result;
+
 			var item = await itemsService.GetItemAsync(id);
 			await itemsService.DeleteItemAsync(item);
 
 			return NoContent();
+		}
+
+		private async Task<IActionResult?> AuthorizeUser(UserPermissions permission)
+		{
+			this.HttpContext.Request.Headers.TryGetValue("Authorization", out StringValues headerValue);
+			if (string.IsNullOrEmpty(headerValue)) return Unauthorized();
+
+			bool isAuthorized = await this.authService.ValidateUserToken(headerValue, permission);
+			if (!isAuthorized) return Problem(
+				type: "/docs/errors/forbidden",
+				title: "Authenticated user is not authorized.",
+				detail: "Token is not valid or user does not have rights to access the endpoint.",
+				statusCode: StatusCodes.Status403Forbidden,
+				instance: HttpContext.Request.Path
+			);
+
+			return null;
 		}
 	}
 }
